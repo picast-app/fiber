@@ -13,6 +13,11 @@ const api = {
       },
     },
   },
+  getCB() {
+    return (msg: string) => {
+      console.log(msg)
+    }
+  },
 }
 export type API = typeof api
 

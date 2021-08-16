@@ -23,12 +23,13 @@ import {
 } from './wellKnown'
 export * from './wellKnown'
 
-export const wrap = <T>(endpoint: Endpoint): Wrapped<T> =>
-  expose(undefined, endpoint)
+export const wrap = <T>(endpoint: Endpoint, debug = false): Wrapped<T> =>
+  expose(undefined, endpoint, debug)
 
 export function expose<T>(
   api: T,
-  endpoint: Endpoint = self as any
+  endpoint: Endpoint = self as any,
+  debug = false
 ): Wrapped<T> {
   const pending: Record<number, [res: λ, rej: λ]> = {}
   const proxyMap: Record<number, WeakRef<any>> = {}
@@ -131,24 +132,30 @@ export function expose<T>(
       if (msg.path.length === 1 && msg.path[0] in internal) {
         data = internal[msg.path[0] as keyof typeof internal](api)()
       } else {
-        const isRoot = msg.path.length === 0
-        const root = typeof msg.path[0] === 'number' ? proxyMap : api
-        const ctx = isRoot ? undefined : select(root, msg.path.slice(0, -1))
-        let node = isRoot ? api : await select(ctx, msg.path.slice(-1))
-        if (
-          (root === proxyMap && node === undefined) ||
-          (node instanceof WeakRef && (node = node.deref()) === undefined)
-        )
-          throw new ReferenceError(
-            `tried to access unreferenced proxy ${msg.path[0]}` +
-              (!debug || !(msg.path[0] in proxyStrs)
-                ? ''
-                : `\n\n${proxyStrs[msg.path[0] as number].replace(
-                    /(^|\n)/g,
-                    '$1| '
-                  )}\n`)
+        const resolve = (
+          path: (string | number)[],
+          ctx: any = api
+        ): [node: any, ctx?: any] => {
+          if (path.length === 0) return [ctx]
+          let node = ctx[path[0]]
+          if (
+            typeof path[0] === 'number' &&
+            path[0] in proxyMap &&
+            (node = proxyMap[path[0]].deref()) === undefined
           )
-
+            throw new ReferenceError(
+              `tried to access unreferenced proxy ${msg.path[0]}` +
+                (!debug || !(msg.path[0] in proxyStrs)
+                  ? ''
+                  : `\n\n${proxyStrs[msg.path[0] as number].replace(
+                      /(^|\n)/g,
+                      '$1| '
+                    )}\n`)
+            )
+          if (path.length === 1) return [node, ctx]
+          return resolve(path.slice(1), node)
+        }
+        const [node, ctx] = resolve(msg.path)
         if (msg.type === 'GET') data = node
         else data = await node.call(ctx, ...(msg.args?.map(unpack) ?? []))
       }
@@ -226,5 +233,4 @@ export const proxy = <T extends Record<any, any>>(
 export const transfer = <T>(v: T): T & { [symTransfer]: true } =>
   Object.assign(v, { [symTransfer]: true } as any)
 
-const debug = process.env.NODE_ENV === 'development'
 const proxyStrs: Record<number, string> = {}
