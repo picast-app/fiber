@@ -137,21 +137,21 @@ export function expose<T>(
           ctx: any = api
         ): [node: any, ctx?: any] => {
           if (path.length === 0) return [ctx]
-          let node = ctx[path[0]]
-          if (
-            typeof path[0] === 'number' &&
-            path[0] in proxyMap &&
-            (node = proxyMap[path[0]].deref()) === undefined
-          )
-            throw new ReferenceError(
-              `tried to access unreferenced proxy ${msg.path[0]}` +
-                (!debug || !(msg.path[0] in proxyStrs)
-                  ? ''
-                  : `\n\n${proxyStrs[msg.path[0] as number].replace(
-                      /(^|\n)/g,
-                      '$1| '
-                    )}\n`)
-            )
+          let node = ctx?.[path[0]]
+          if (typeof path[0] === 'number' && path[0] in proxyMap) {
+            node = proxyMap[path[0]].deref()
+            if (node === undefined)
+              throw new ReferenceError(
+                `tried to access unreferenced proxy ${msg.path[0]}` +
+                  (!debug || !(msg.path[0] in proxyStrs)
+                    ? ''
+                    : `\n\n${proxyStrs[msg.path[0] as number].replace(
+                        /(^|\n)/g,
+                        '$1| '
+                      )}\n`)
+              )
+            return resolve(msg.path.slice(1), node)
+          }
           if (path.length === 1) return [node, ctx]
           return resolve(path.slice(1), node)
         }
