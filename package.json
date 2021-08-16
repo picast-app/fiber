@@ -1,5 +1,5 @@
 {
-  "name": "fiber",
+  "name": "@picast-app/fiber",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,10 +9,7 @@
     "build": "rm -rf build && tsc -p tsconfig.json && cp package.json build",
     "postversion": "git push --follow-tags"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/picast-app/fiber.git"
-  },
+  "repository": "git://github.com/picast-app/fiber.git",
   "keywords": [],
   "author": "Mathis Bullinger",
   "license": "ISC",

@@ -3,12 +3,13 @@ import { expose } from '../src'
 
 const api = {
   sayHello(msg: string) {
+    console.assert(this === api)
     console.log('hello', msg)
   },
   foo: {
     bar: {
       baz() {
-        console.log(this)
+        console.assert(this === api.foo.bar)
       },
     },
   },
