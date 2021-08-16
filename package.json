@@ -1,0 +1,35 @@
+{
+  "name": "fiber",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "private": "true",
+  "scripts": {
+    "build": "rm -rf build && tsc -p tsconfig.json && cp package.json build",
+    "postversion": "git push --follow-tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/picast-app/fiber.git"
+  },
+  "keywords": [],
+  "author": "Mathis Bullinger",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/picast-app/fiber/issues"
+  },
+  "homepage": "https://github.com/picast-app/fiber#readme",
+  "peerDependencies": {
+    "snatchblock": "*"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/parser": "^4.29.1",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.2",
+    "typescript": "^4.3.5"
+  }
+}
