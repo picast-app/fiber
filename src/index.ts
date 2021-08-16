@@ -218,6 +218,5 @@ export const proxy = <T extends Record<any, any>>(
 export const transfer = <T>(v: T): T & { [symTransfer]: true } =>
   Object.assign(v, { [symTransfer]: true } as any)
 
-// const debug = process.env.NODE_ENV === 'development'
-const debug = true
+const debug = process.env.NODE_ENV === 'development'
 const proxyStrs: Record<number, string> = {}

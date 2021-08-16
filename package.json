@@ -24,6 +24,7 @@
     "snatchblock": "*"
   },
   "devDependencies": {
+    "@types/node": "^16.6.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
     "eslint": "^7.32.0",
