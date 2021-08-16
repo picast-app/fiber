@@ -52,6 +52,9 @@ export function expose<T>(
   const proxyRefs: Record<number, any> = {}
 
   const pack = (arg: any): [arg: any, transfer: Transferable[]] => {
+    if (typeof arg === 'function' && key in arg)
+      return [{ __key: arg[key] }, []]
+
     if (!oneOf(typeof arg, 'object', 'function') || arg === null)
       return [arg, []]
     if (!(proxied in arg)) {
@@ -100,6 +103,7 @@ export function expose<T>(
   const unpack = (arg: any): any => {
     if (typeof arg !== 'object' || arg === null) return arg
     if ('__proxy' in arg) return createProxy(send, arg.__proxy)
+    if ('__key' in arg) return select(api, arg.__key)
     return Array.isArray(arg)
       ? arg.map(unpack)
       : arg.constructor === Object
@@ -200,6 +204,10 @@ const createProxy = (
           : undefined
 
       return createProxy(send, ...path, p)
+    },
+    has(t, p) {
+      if (p === key) return true
+      return p in t
     },
     apply: (_, __, args) => send({ type: 'INV', path, args }),
   })
